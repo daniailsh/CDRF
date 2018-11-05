@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdlib.h>  // RAND_MAX
+#include <math.h>
+#include <time.h>
+
+#define ALPHA 600
+#define TEST 100
+
+double randomDouble(void)
+{
+	return (double)rand() / RAND_MAX;
+}
+
+
+void swap(double* a, double* b) {
+	double tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+void swap_int(int* a, int* b) {
+	int tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
+void quick_sort(double* array, int* array2, int start, int end) {
+
+	if (start >= end) return;
+
+	int mid = (start + end) / 2;
+	double pivot = array[mid];
+
+	swap(&array[start], &array[mid]);
+	swap_int(&array2[start], &array2[mid]);
+
+	int p = start + 1, q = end;
+
+	while (1) {
+		while (array[p] <= pivot) { p++; }
+		while (array[q]>pivot) { q--; }
+
+		if (p>q) break;
+
+		swap(&array[p], &array[q]);
+		swap_int(&array2[p], &array2[q]);
+	}
+
+	swap(&array[start], &array[q]);
+	swap_int(&array2[start], &array2[q]);
+
+	quick_sort(array, array2, start, q - 1);
+	quick_sort(array, array2,  q + 1, end);
+
+}
+int main(void)
+{
+	int item[ALPHA];
+	long double weight[ALPHA];
+
+	int tmp[TEST];
+	double tmp_weight[TEST];
+	//double randomval[TEST];
+	double key[TEST];
+
+	int i = 0;
+
+	double tmp_result;
+	double tmp_key;
+	
+	srand(time(NULL));
+	//Weight 할당 완료
+
+	for (i = 0; i < ALPHA; i++)
+	{
+		item[i] = i + 1;
+		weight[i] = (double)1.0 / ALPHA;
+	
+	}
+	for (i = 0; i < 10; i++)
+	{
+		weight[i] = weight[i] * 100;
+	}
+	
+	//최초 앞의 N개 넣기
+	for (i = 0; i < TEST; i++)
+	{
+		tmp[i] = item[i];
+		tmp_weight[i] = weight[i];
+	}
+	
+	printf("최초 10개의 Key\n");
+	//N개의 key Random하게 선택하기
+	for (i = 0; i < TEST; i++)
+	{
+		//printf("%f \n", weight[i]);
+		//printf("%f \n", 1 / weight[i]);
+		tmp_key = 1.0 / weight[i];
+		key[i] = pow(randomDouble(), tmp_key);
+		printf("item %d`s key = %.19f\n",tmp[i], key[i]);
+	}
+		
+	//오름차순 정렬(퀵소트)
+	quick_sort(key,tmp, 0, TEST-1);
+	
+	
+	printf("정렬 이후 출력\n");
+	for (i = 0; i < TEST; i++)
+	{
+		printf("item %d`s key = %.19f\n", tmp[i], key[i]);
+	}
+
+	
+	//나머지 데이터들에 대해..
+	for (i = TEST; i < ALPHA - TEST + 1; i++)
+	{
+		//다음 데이터의 key값 계산
+		tmp_result = pow(randomDouble(), 1 / weight[i]);
+		//최소값과 비교 및 교체
+		if (key[0] < tmp_result)
+		{
+			key[0] = tmp_result;
+			tmp[0] = item[i];
+		}
+		quick_sort(key, tmp, 0, TEST-1);
+	}
+	
+	printf("최종 데이터 출력\n");
+	for (i = 0; i < TEST; i++)
+	{
+		printf("item %d`s key = %.19f\n", tmp[i], key[i]);
+	}
+	
+	return 0;
+}
+
